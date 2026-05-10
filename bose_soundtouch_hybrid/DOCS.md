@@ -20,7 +20,9 @@ The Bose cloud injection script uses `App IP address` and `App port`, not the br
 
 Add every Bose SoundTouch speaker under `Speakers` with a friendly name and static LAN IP address.
 
-The `Music Assistant container name` is only used by the System Tools restart button and startup auto-restart logic. For the Home Assistant Music Assistant app, the container name normally starts with `addon_` and can be copied from the Music Assistant app URL or container list.
+When Music Assistant runs as an app/add-on on the same Home Assistant host, leave `Music Assistant IP address` blank. The wrapper uses `127.0.0.1` for Music Assistant and auto-detects the Music Assistant app/add-on from Docker.
+
+Restarting Music Assistant prefers the Home Assistant Supervisor API when the app/add-on can be detected. Docker API restart is kept as an internal fallback.
 
 ## Upstream Version
 

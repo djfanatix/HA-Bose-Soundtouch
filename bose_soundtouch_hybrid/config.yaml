@@ -12,6 +12,7 @@ startup: application
 boot: auto
 init: false
 host_network: true
+hassio_api: true
 docker_api: true
 ingress: true
 ingress_port: 3010
@@ -29,11 +30,11 @@ options:
   app_ip: null
   app_port: 3010
   bose_port: 8090
-  mass_ip: null
+  music_assistant_addon: true
+  mass_ip: ""
   mass_port: 8095
-  mass_username: null
-  mass_password: null
-  mass_container_name: null
+  mass_username: ""
+  mass_password: ""
   wla_preset_bypass: true
   auto_resume_preset: true
   speakers: []
@@ -41,11 +42,11 @@ schema:
   app_ip: str
   app_port: int(1,65535)
   bose_port: int(1,65535)
+  music_assistant_addon: bool
   mass_ip: str
   mass_port: int(1,65535)
   mass_username: str
   mass_password: password
-  mass_container_name: str
   wla_preset_bypass: bool
   auto_resume_preset: bool
   speakers:

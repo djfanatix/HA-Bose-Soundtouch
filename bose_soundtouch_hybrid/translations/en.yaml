@@ -8,9 +8,12 @@ configuration:
   bose_port:
     name: Bose speaker port
     description: Local API port used by Bose SoundTouch hardware.
+  music_assistant_addon:
+    name: Music Assistant runs on this Home Assistant
+    description: Use local Home Assistant defaults for Music Assistant and auto-detect the add-on container when possible.
   mass_ip:
     name: Music Assistant IP address
-    description: Local IP address of the Music Assistant server.
+    description: Leave blank when Music Assistant runs as an app/add-on on the same Home Assistant host.
   mass_port:
     name: Music Assistant port
     description: Port used by Music Assistant.
@@ -20,9 +23,6 @@ configuration:
   mass_password:
     name: Music Assistant password
     description: Password configured in Music Assistant.
-  mass_container_name:
-    name: Music Assistant container name
-    description: Docker container name used when SoundTouch Hybrid restarts Music Assistant.
   wla_preset_bypass:
     name: Wireless Link preset bypass
     description: Route Wireless Link Adapter preset clicks directly to Music Assistant.
@@ -40,4 +40,4 @@ configuration:
         name: Speaker IP address
         description: Static local IP address of the Bose SoundTouch speaker.
 network:
-  3000/TCP: "SoundTouch Hybrid web interface and Bose cloud emulation"
+  3010/TCP: "SoundTouch Hybrid web interface and Bose cloud emulation"
