@@ -16,6 +16,8 @@ Set `App IP address` to the LAN IP of the Home Assistant host. Bose speakers mus
 
 Leave `App port` at `3010` when using Home Assistant ingress. If you change it, `ingress_port` in `config.yaml` must be changed to the same value and the app rebuilt.
 
+The Bose cloud injection script uses `App IP address` and `App port`, not the browser URL. For example, if Home Assistant is `192.168.1.120` and the app port is `3010`, the injected Bose URLs will use `http://192.168.1.120:3010`.
+
 Add every Bose SoundTouch speaker under `Speakers` with a friendly name and static LAN IP address.
 
 The `Music Assistant container name` is only used by the System Tools restart button and startup auto-restart logic. For the Home Assistant Music Assistant app, the container name normally starts with `addon_` and can be copied from the Music Assistant app URL or container list.

@@ -45,6 +45,19 @@ write_speakers() {
   jq '.speakers // []' "${CONFIG_PATH}" > "${APP_CONFIG_DIR}/speakers.json"
 }
 
+patch_cloud_injection_url() {
+  local app_ip app_port app_url
+  app_ip="$(option app_ip)"
+  app_port="$(option app_port)"
+  app_url="http://${app_ip}:${app_port}"
+
+  if [ -f /app/public/tools.html ]; then
+    sed -i \
+      -e "s#const SERVER_URL = window.location.protocol + \"//\" + window.location.host;#const SERVER_URL = \"${app_url}\";#g" \
+      /app/public/tools.html
+  fi
+}
+
 install_ingress_shim() {
   cat > /app/public/ingress.js <<'EOF'
 (function () {
@@ -86,6 +99,7 @@ EOF
 
 write_env
 write_speakers
+patch_cloud_injection_url
 install_ingress_shim
 
 if [ ! -f "${APP_CONFIG_DIR}/library.json" ] && [ -f /app/templates/library.template.json ]; then
