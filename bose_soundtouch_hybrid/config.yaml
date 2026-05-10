@@ -14,20 +14,20 @@ init: false
 host_network: true
 docker_api: true
 ingress: true
-ingress_port: 3000
+ingress_port: 3010
 ingress_entry: /control.html
 ingress_stream: true
 panel_icon: mdi:speaker
 panel_title: SoundTouch Hybrid
 ports:
-  3000/tcp: 3000
+  3010/tcp: 3010
 ports_description:
-  3000/tcp: "SoundTouch Hybrid web interface and Bose cloud emulation"
+  3010/tcp: "SoundTouch Hybrid web interface and Bose cloud emulation"
 map:
   - addon_config:rw
 options:
   app_ip: null
-  app_port: 3000
+  app_port: 3010
   bose_port: 8090
   mass_ip: null
   mass_port: 8095

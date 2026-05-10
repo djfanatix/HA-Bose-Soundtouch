@@ -45,8 +45,48 @@ write_speakers() {
   jq '.speakers // []' "${CONFIG_PATH}" > "${APP_CONFIG_DIR}/speakers.json"
 }
 
+install_ingress_shim() {
+  cat > /app/public/ingress.js <<'EOF'
+(function () {
+  function ingressBase() {
+    var match = window.location.pathname.match(/^(\/api\/hassio_ingress\/[^/]+)/);
+    return match ? match[1] : "";
+  }
+
+  window.ingressPath = function (path) {
+    if (!path || path[0] !== "/") return path;
+    return ingressBase() + path;
+  };
+
+  var nativeFetch = window.fetch;
+  window.fetch = function (input, init) {
+    if (typeof input === "string") {
+      input = window.ingressPath(input);
+    } else if (input && input.url && input.url.charAt(0) === "/") {
+      input = new Request(window.ingressPath(input.url), input);
+    }
+    return nativeFetch.call(this, input, init);
+  };
+})();
+EOF
+
+  for page in /app/public/control.html /app/public/manager.html /app/public/admin.html /app/public/tools.html; do
+    [ -f "${page}" ] || continue
+    if ! grep -q 'ingress.js' "${page}"; then
+      sed -i \
+        -e 's#<script src="global_ui.js"></script>#<script src="ingress.js"></script>\n  <script src="global_ui.js"></script>#' \
+        "${page}"
+    fi
+    sed -i -E \
+      -e "s#window\.location\.href='(/[^']*)'#window.location.href=window.ingressPath('\1')#g" \
+      -e 's#window\.location\.href="(/[^"]*)"#window.location.href=window.ingressPath("\1")#g' \
+      "${page}"
+  done
+}
+
 write_env
 write_speakers
+install_ingress_shim
 
 if [ ! -f "${APP_CONFIG_DIR}/library.json" ] && [ -f /app/templates/library.template.json ]; then
   cp /app/templates/library.template.json "${APP_CONFIG_DIR}/library.json"
