@@ -7,7 +7,7 @@ It contains a Home Assistant wrapper for the original Bose SoundTouch Hybrid app
 https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026
 
 # Installation
-1. Install Music Assistant (preferably in as Home Assistant APP, configuration according Soundtouch Hybrid Readme
+1. Install Music Assistant (preferably as Home Assistant APP, configuration according Soundtouch Hybrid Readme
 2. Add custom App repo in Home Assistant Apps (previously called Addons) repo: https://github.com/djfanatix/HA-Bose-Soundtouch
 3. Make configuration in UI of APP.
    - Make sure to enter HA ip address, as this will be used as new Cloud server
