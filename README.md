@@ -14,6 +14,6 @@ https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026
    - If you use Music Assistant as App in HA, you can use the URL blank, but you need to add the login and password
    - Add your speakers in the Config UI
 
-#Todo
+# Todo
 - fix readme
 - handle updates and beta versions
