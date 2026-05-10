@@ -13,3 +13,7 @@ https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026
    - Make sure to enter HA ip address, as this will be used as new Cloud server
    - If you use Music Assistant as App in HA, you can use the URL blank, but you need to add the login and password
    - Add your speakers in the Config UI
+
+#Todo
+- fix readme
+- handle updates and beta versions
