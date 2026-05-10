@@ -1,0 +1,43 @@
+configuration:
+  app_ip:
+    name: App IP address
+    description: Local IP address of the Home Assistant host that Bose speakers can reach.
+  app_port:
+    name: App port
+    description: Port used by SoundTouch Hybrid for the web UI and Bose cloud emulation.
+  bose_port:
+    name: Bose speaker port
+    description: Local API port used by Bose SoundTouch hardware.
+  mass_ip:
+    name: Music Assistant IP address
+    description: Local IP address of the Music Assistant server.
+  mass_port:
+    name: Music Assistant port
+    description: Port used by Music Assistant.
+  mass_username:
+    name: Music Assistant username
+    description: Username configured in Music Assistant.
+  mass_password:
+    name: Music Assistant password
+    description: Password configured in Music Assistant.
+  mass_container_name:
+    name: Music Assistant container name
+    description: Docker container name used when SoundTouch Hybrid restarts Music Assistant.
+  wla_preset_bypass:
+    name: Wireless Link preset bypass
+    description: Route Wireless Link Adapter preset clicks directly to Music Assistant.
+  auto_resume_preset:
+    name: Auto resume preset
+    description: Resume the last playing preset when a speaker powers back on.
+  speakers:
+    name: Speakers
+    description: Bose SoundTouch speakers managed by this app.
+    fields:
+      name:
+        name: Speaker name
+        description: Friendly display name for the speaker.
+      ip:
+        name: Speaker IP address
+        description: Static local IP address of the Bose SoundTouch speaker.
+network:
+  3000/TCP: "SoundTouch Hybrid web interface and Bose cloud emulation"

@@ -1,0 +1,53 @@
+name: "Bose SoundTouch Hybrid"
+version: "3.0.0"
+slug: "bose_soundtouch_hybrid"
+description: "Private cloud bridge for Bose SoundTouch speakers and Music Assistant"
+url: "https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026"
+arch:
+  - aarch64
+  - amd64
+  - armv7
+  - i386
+startup: application
+boot: auto
+init: false
+host_network: true
+docker_api: true
+ingress: true
+ingress_port: 3000
+ingress_entry: /control.html
+ingress_stream: true
+panel_icon: mdi:speaker
+panel_title: SoundTouch Hybrid
+ports:
+  3000/tcp: 3000
+ports_description:
+  3000/tcp: "SoundTouch Hybrid web interface and Bose cloud emulation"
+map:
+  - addon_config:rw
+options:
+  app_ip: null
+  app_port: 3000
+  bose_port: 8090
+  mass_ip: null
+  mass_port: 8095
+  mass_username: null
+  mass_password: null
+  mass_container_name: null
+  wla_preset_bypass: true
+  auto_resume_preset: true
+  speakers: []
+schema:
+  app_ip: str
+  app_port: int(1,65535)
+  bose_port: int(1,65535)
+  mass_ip: str
+  mass_port: int(1,65535)
+  mass_username: str
+  mass_password: password
+  mass_container_name: str
+  wla_preset_bypass: bool
+  auto_resume_preset: bool
+  speakers:
+    - name: str
+      ip: str
