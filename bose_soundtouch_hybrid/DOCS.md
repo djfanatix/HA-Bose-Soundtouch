@@ -25,6 +25,7 @@ When Music Assistant runs as an app/add-on on the same Home Assistant host, leav
 Music Assistant API control uses `Music Assistant username` plus `Music Assistant password`, matching the upstream SoundTouch Hybrid app.
 
 Restarting Music Assistant uses the Home Assistant Supervisor API. The wrapper detects the installed Music Assistant app automatically; no internal app slug needs to be configured by the user.
+This requires `hassio_role: manager`; the default Supervisor role can read app info but cannot restart another app.
 
 Home Assistant update availability is driven by the `version` field in this add-on repository. Bump `config.yaml` version for every add-on repository release, even if the upstream SoundTouch Hybrid app reference has not changed.
 

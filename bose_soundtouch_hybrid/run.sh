@@ -176,7 +176,10 @@ const replacement = `function supervisorRequest(path, method = 'GET') {
                     }
                 }
 
-                reject(new Error(\`Supervisor API Status: \${res.statusCode}\${body ? \` - \${body}\` : ""}\`));
+                const hint = res.statusCode === 403
+                    ? " (set hassio_role: manager in the Home Assistant app config, then rebuild/reinstall the app)"
+                    : "";
+                reject(new Error(\`Supervisor API Status: \${res.statusCode}\${body ? \` - \${body}\` : ""}\${hint}\`));
             });
         });
 
