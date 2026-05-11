@@ -46,7 +46,7 @@ const req = http.request({
     try {
       const payload = JSON.parse(body);
       const addons = payload.data?.addons || payload.addons || [];
-      const match = addons.find((addon) => {
+      const candidates = addons.filter((addon) => {
         const slug = String(addon.slug || "").toLowerCase();
         const name = String(addon.name || "").toLowerCase();
         return slug === "music_assistant" ||
@@ -57,6 +57,17 @@ const req = http.request({
           name.includes("music assistant");
       });
 
+      const priority = (addon) => {
+        const slug = String(addon.slug || "").toLowerCase();
+        const installed = addon.installed === true ? 0 : 100;
+        if (slug === "music_assistant") return installed + 0;
+        if (slug === "music_assistant_beta") return installed + 10;
+        if (slug === "music_assistant_dev") return installed + 20;
+        if (slug === "music_assistant_nightly") return installed + 30;
+        return installed + 50;
+      };
+
+      const match = candidates.sort((a, b) => priority(a) - priority(b))[0];
       if (match && match.slug) console.log(match.slug);
     } catch (err) {
       process.exit(0);
@@ -83,12 +94,6 @@ resolved_mass_ip() {
 
 resolved_mass_addon_slug() {
   local addon_slug
-  addon_slug="$(option mass_addon_slug)"
-
-  if [ -n "${addon_slug}" ]; then
-    printf '%s' "${addon_slug}"
-    return
-  fi
 
   if [ "$(option music_assistant_addon)" = "true" ]; then
     addon_slug="$(detect_music_assistant_addon_slug | head -n 1)"
@@ -119,7 +124,7 @@ write_env() {
   } > "${APP_CONFIG_DIR}/.env"
 
   if [ -z "${mass_addon_slug}" ] && [ "$(option music_assistant_addon)" = "true" ]; then
-    bashio::log.warning "Music Assistant app slug was not auto-detected. Supervisor restart will be skipped."
+    bashio::log.warning "Music Assistant app was not auto-detected. Restart controls will be skipped."
   fi
 }
 

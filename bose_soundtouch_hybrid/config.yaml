@@ -1,5 +1,5 @@
 name: "Bose SoundTouch Hybrid"
-version: "0.0.6"
+version: "0.0.7"
 slug: "bose_soundtouch_hybrid"
 description: "Private cloud bridge for Bose SoundTouch speakers and Music Assistant"
 url: "https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026"
@@ -34,7 +34,6 @@ options:
   mass_port: 8095
   mass_username: ""
   mass_password: ""
-  mass_addon_slug: ""
   wla_preset_bypass: true
   auto_resume_preset: true
   speakers: []
@@ -47,7 +46,6 @@ schema:
   mass_port: int(1,65535)
   mass_username: str
   mass_password: password
-  mass_addon_slug: str
   wla_preset_bypass: bool
   auto_resume_preset: bool
   speakers:
