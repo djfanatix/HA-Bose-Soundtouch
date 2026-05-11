@@ -25,32 +25,39 @@ dotenv_escape() {
   ' "${CONFIG_PATH}"
 }
 
-detect_music_assistant_container() {
+detect_music_assistant_addon_slug() {
   node <<'NODE' || true
 const http = require("http");
+const token = process.env.SUPERVISOR_TOKEN;
+
+if (!token) process.exit(0);
 
 const req = http.request({
-  socketPath: "/var/run/docker.sock",
-  path: "/v1.41/containers/json?all=true",
-  method: "GET"
+  hostname: "supervisor",
+  path: "/addons",
+  method: "GET",
+  headers: { Authorization: `Bearer ${token}` },
+  timeout: 5000
 }, (res) => {
   let body = "";
   res.setEncoding("utf8");
   res.on("data", (chunk) => body += chunk);
   res.on("end", () => {
     try {
-      const containers = JSON.parse(body);
-      const match = containers.find((container) => {
-        const names = (container.Names || []).join(" ").toLowerCase();
-        const image = String(container.Image || "").toLowerCase();
-        return names.includes("music_assistant") ||
-          names.includes("music-assistant") ||
-          image.includes("music-assistant");
+      const payload = JSON.parse(body);
+      const addons = payload.data?.addons || payload.addons || [];
+      const match = addons.find((addon) => {
+        const slug = String(addon.slug || "").toLowerCase();
+        const name = String(addon.name || "").toLowerCase();
+        return slug === "music_assistant" ||
+          slug === "music_assistant_beta" ||
+          slug === "music_assistant_dev" ||
+          slug === "music_assistant_nightly" ||
+          name === "music assistant" ||
+          name.includes("music assistant");
       });
 
-      if (match && match.Names && match.Names[0]) {
-        console.log(match.Names[0].replace(/^\//, ""));
-      }
+      if (match && match.slug) console.log(match.slug);
     } catch (err) {
       process.exit(0);
     }
@@ -74,19 +81,8 @@ resolved_mass_ip() {
   printf '%s' "${mass_ip}"
 }
 
-resolved_mass_container_name() {
-  local container_name
-  container_name="$(option mass_container_name)"
-
-  if [ -z "${container_name}" ] && [ "$(option music_assistant_addon)" = "true" ]; then
-    container_name="$(detect_music_assistant_container | head -n 1)"
-  fi
-
-  printf '%s' "${container_name}"
-}
-
 resolved_mass_addon_slug() {
-  local addon_slug container_name
+  local addon_slug
   addon_slug="$(option mass_addon_slug)"
 
   if [ -n "${addon_slug}" ]; then
@@ -95,17 +91,17 @@ resolved_mass_addon_slug() {
   fi
 
   if [ "$(option music_assistant_addon)" = "true" ]; then
-    container_name="$(resolved_mass_container_name)"
-    if [[ "${container_name}" == addon_* ]]; then
-      printf '%s' "${container_name#addon_}"
+    addon_slug="$(detect_music_assistant_addon_slug | head -n 1)"
+    if [ -n "${addon_slug}" ]; then
+      printf '%s' "${addon_slug}"
+      return
     fi
   fi
 }
 
 write_env() {
-  local mass_ip mass_container_name mass_addon_slug
+  local mass_ip mass_addon_slug
   mass_ip="$(resolved_mass_ip)"
-  mass_container_name="$(resolved_mass_container_name)"
   mass_addon_slug="$(resolved_mass_addon_slug)"
 
   {
@@ -118,14 +114,9 @@ write_env() {
     printf 'MASS_USERNAME="%s"\n' "$(dotenv_escape mass_username)"
     printf 'MASS_PASSWORD="%s"\n' "$(dotenv_escape mass_password)"
     printf 'MASS_ADDON_SLUG="%s"\n' "${mass_addon_slug}"
-    printf 'MASS_CONTAINER_NAME="%s"\n' "${mass_container_name}"
     printf 'WLA_PRESET_BYPASS="%s"\n' "$(option wla_preset_bypass)"
     printf 'AUTO_RESUME_PRESET="%s"\n' "$(option auto_resume_preset)"
   } > "${APP_CONFIG_DIR}/.env"
-
-  if [ -z "${mass_container_name}" ] && [ "$(option music_assistant_addon)" = "true" ]; then
-    bashio::log.warning "Music Assistant app/add-on was not auto-detected. Restart controls may not work."
-  fi
 
   if [ -z "${mass_addon_slug}" ] && [ "$(option music_assistant_addon)" = "true" ]; then
     bashio::log.warning "Music Assistant app slug was not auto-detected. Supervisor restart will be skipped."
@@ -148,7 +139,7 @@ const replacement = `function supervisorAction(action = 'restart') {
         const token = process.env.SUPERVISOR_TOKEN;
 
         if (!addonSlug || !token) {
-            return reject(new Error("Supervisor restart unavailable"));
+            return reject(new Error("Supervisor restart unavailable: MASS_ADDON_SLUG or SUPERVISOR_TOKEN missing"));
         }
 
         const options = {
@@ -170,32 +161,17 @@ const replacement = `function supervisorAction(action = 'restart') {
 }
 
 function dockerAction(action = 'restart') {
-    return supervisorAction(action).catch(() => new Promise((resolve, reject) => {
-        const containerName = process.env.MASS_CONTAINER_NAME;
-        if (!containerName) return reject(new Error("MASS_CONTAINER_NAME not set in .env"));
-
-        const options = {
-            socketPath: '/var/run/docker.sock',
-            path: \`/v1.41/containers/\${containerName}/\${action}\`,
-            method: 'POST',
-        };
-
-        const req = http.request(options, (res) => {
-            if (res.statusCode === 204 || res.statusCode === 200) resolve(true);
-            else reject(new Error(\`Docker API Status: \${res.statusCode}\`));
-        });
-
-        req.on('error', (err) => reject(err));
-        req.end();
-    }));
+    return supervisorAction(action);
 }
 
 `;
 
-source = source.replace(
-  /function dockerAction\(action = 'restart'\) \{[\s\S]*?\n\}\n\n\/\/ --- NEW BULLETPROOF HEALTH CHECK ---/,
-  replacement + "// --- NEW BULLETPROOF HEALTH CHECK ---"
-);
+if (!source.includes("function supervisorAction")) {
+  source = source.replace(
+    /function dockerAction\(action = 'restart'\) \{[\s\S]*?\n\}\n\n\/\/ --- NEW BULLETPROOF HEALTH CHECK ---/,
+    replacement + "// --- NEW BULLETPROOF HEALTH CHECK ---"
+  );
+}
 
 fs.writeFileSync(file, source);
 NODE

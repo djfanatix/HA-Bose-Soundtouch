@@ -23,6 +23,9 @@ configuration:
   mass_password:
     name: Music Assistant password
     description: Password configured in Music Assistant.
+  mass_addon_slug:
+    name: Music Assistant app slug
+    description: Optional override for Supervisor restart, for example music_assistant.
   wla_preset_bypass:
     name: Wireless Link preset bypass
     description: Route Wireless Link Adapter preset clicks directly to Music Assistant.

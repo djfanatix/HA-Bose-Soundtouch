@@ -20,9 +20,13 @@ The Bose cloud injection script uses `App IP address` and `App port`, not the br
 
 Add every Bose SoundTouch speaker under `Speakers` with a friendly name and static LAN IP address.
 
-When Music Assistant runs as an app/add-on on the same Home Assistant host, leave `Music Assistant IP address` blank. The wrapper uses `127.0.0.1` for Music Assistant and auto-detects the Music Assistant app/add-on from Docker.
+When Music Assistant runs as an app/add-on on the same Home Assistant host, leave `Music Assistant IP address` blank. The wrapper uses `127.0.0.1` for Music Assistant and auto-detects the Music Assistant app/add-on through the Supervisor API.
 
-Restarting Music Assistant prefers the Home Assistant Supervisor API when the app/add-on can be detected. Docker API restart is kept as an internal fallback.
+Music Assistant API control uses `Music Assistant username` plus `Music Assistant password`, matching the upstream SoundTouch Hybrid app.
+
+Restarting Music Assistant uses the Home Assistant Supervisor API. If auto-detection fails, set `Music Assistant app slug` manually, for example `music_assistant`.
+
+Home Assistant update availability is driven by the `version` field in this add-on repository. Bump `config.yaml` version for every add-on repository release, even if the upstream SoundTouch Hybrid app reference has not changed.
 
 ## Upstream Version
 
