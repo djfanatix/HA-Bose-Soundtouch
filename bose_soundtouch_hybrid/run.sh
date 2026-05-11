@@ -46,13 +46,21 @@ const req = http.request({
     try {
       const payload = JSON.parse(body);
       const addons = payload.data?.addons || payload.addons || [];
+      const selfSlug = process.env.SUPERVISOR_ADDON || "bose_soundtouch_hybrid";
       const candidates = addons.filter((addon) => {
         const slug = String(addon.slug || "").toLowerCase();
         const name = String(addon.name || "").toLowerCase();
+        if (slug === selfSlug || slug.includes("bose_soundtouch_hybrid") || name.includes("soundtouch hybrid")) {
+          return false;
+        }
         return slug === "music_assistant" ||
+          slug.endsWith("_music_assistant") ||
           slug === "music_assistant_beta" ||
+          slug.endsWith("_music_assistant_beta") ||
           slug === "music_assistant_dev" ||
+          slug.endsWith("_music_assistant_dev") ||
           slug === "music_assistant_nightly" ||
+          slug.endsWith("_music_assistant_nightly") ||
           name === "music assistant" ||
           name.includes("music assistant");
       });
@@ -60,15 +68,15 @@ const req = http.request({
       const priority = (addon) => {
         const slug = String(addon.slug || "").toLowerCase();
         const installed = addon.installed === true ? 0 : 100;
-        if (slug === "music_assistant") return installed + 0;
-        if (slug === "music_assistant_beta") return installed + 10;
-        if (slug === "music_assistant_dev") return installed + 20;
-        if (slug === "music_assistant_nightly") return installed + 30;
+        if (slug === "music_assistant" || slug.endsWith("_music_assistant")) return installed + 0;
+        if (slug === "music_assistant_beta" || slug.endsWith("_music_assistant_beta")) return installed + 10;
+        if (slug === "music_assistant_dev" || slug.endsWith("_music_assistant_dev")) return installed + 20;
+        if (slug === "music_assistant_nightly" || slug.endsWith("_music_assistant_nightly")) return installed + 30;
         return installed + 50;
       };
 
       const match = candidates.sort((a, b) => priority(a) - priority(b))[0];
-      if (match && match.slug) console.log(match.slug);
+      if (match && match.slug && !String(match.slug).includes("bose_soundtouch_hybrid")) console.log(match.slug);
     } catch (err) {
       process.exit(0);
     }
@@ -138,31 +146,99 @@ const fs = require("fs");
 const file = "/app/routes/mass_utils.js";
 let source = fs.readFileSync(file, "utf8");
 
-const replacement = `function supervisorAction(action = 'restart') {
+const replacement = `function supervisorRequest(path, method = 'GET') {
     return new Promise((resolve, reject) => {
-        const addonSlug = process.env.MASS_ADDON_SLUG;
         const token = process.env.SUPERVISOR_TOKEN;
 
-        if (!addonSlug || !token) {
-            return reject(new Error("Supervisor restart unavailable: MASS_ADDON_SLUG or SUPERVISOR_TOKEN missing"));
+        if (!token) {
+            return reject(new Error("Supervisor restart unavailable: SUPERVISOR_TOKEN missing. Check hassio_api in the Home Assistant app config and rebuild/reinstall the app."));
         }
 
         const options = {
             hostname: 'supervisor',
-            path: \`/addons/\${addonSlug}/\${action}\`,
-            method: 'POST',
+            path,
+            method,
             headers: { Authorization: \`Bearer \${token}\` },
             timeout: 5000,
         };
 
         const req = http.request(options, (res) => {
-            if (res.statusCode >= 200 && res.statusCode < 300) resolve(true);
-            else reject(new Error(\`Supervisor API Status: \${res.statusCode}\`));
+            let body = "";
+            res.setEncoding('utf8');
+            res.on('data', (chunk) => body += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    if (!body) return resolve({});
+                    try {
+                        return resolve(JSON.parse(body));
+                    } catch (err) {
+                        return resolve(body);
+                    }
+                }
+
+                reject(new Error(\`Supervisor API Status: \${res.statusCode}\${body ? \` - \${body}\` : ""}\`));
+            });
         });
 
         req.on('error', (err) => reject(err));
         req.end();
     });
+}
+
+async function discoverMusicAssistantAddonSlug() {
+    const payload = await supervisorRequest('/addons');
+    const selfPayload = await supervisorRequest('/addons/self/info').catch(() => ({}));
+    const addons = payload.data?.addons || payload.addons || [];
+    const self = selfPayload.data || selfPayload || {};
+    const selfSlug = String(self.slug || "").toLowerCase();
+    const candidates = addons.filter((addon) => {
+        const slug = String(addon.slug || "").toLowerCase();
+        const name = String(addon.name || "").toLowerCase();
+        if (selfSlug && slug === selfSlug) return false;
+        if (slug.includes("bose_soundtouch_hybrid") || name.includes("soundtouch hybrid")) return false;
+        return slug === "music_assistant" ||
+            slug.endsWith("_music_assistant") ||
+            slug === "music_assistant_beta" ||
+            slug.endsWith("_music_assistant_beta") ||
+            slug === "music_assistant_dev" ||
+            slug.endsWith("_music_assistant_dev") ||
+            slug === "music_assistant_nightly" ||
+            slug.endsWith("_music_assistant_nightly") ||
+            name === "music assistant" ||
+            name.includes("music assistant");
+    });
+
+    const priority = (addon) => {
+        const slug = String(addon.slug || "").toLowerCase();
+        const installed = addon.installed === true ? 0 : 100;
+        if (slug === "music_assistant" || slug.endsWith("_music_assistant")) return installed + 0;
+        if (slug === "music_assistant_beta" || slug.endsWith("_music_assistant_beta")) return installed + 10;
+        if (slug === "music_assistant_dev" || slug.endsWith("_music_assistant_dev")) return installed + 20;
+        if (slug === "music_assistant_nightly" || slug.endsWith("_music_assistant_nightly")) return installed + 30;
+        return installed + 50;
+    };
+
+    const match = candidates.sort((a, b) => priority(a) - priority(b))[0];
+    return match?.slug || null;
+}
+
+async function supervisorAction(action = 'restart') {
+    const configuredSlug = process.env.MASS_ADDON_SLUG || "";
+    const addonSlug = (
+        configuredSlug &&
+        configuredSlug !== "self" &&
+        !configuredSlug.includes("bose_soundtouch_hybrid")
+    ) ? configuredSlug : await discoverMusicAssistantAddonSlug();
+    if (!addonSlug) {
+        throw new Error("Supervisor restart unavailable: Music Assistant app was not found in the installed Home Assistant apps.");
+    }
+    if (addonSlug === "self" || addonSlug.includes("bose_soundtouch_hybrid")) {
+        throw new Error(\`Supervisor restart aborted: refusing to restart \${addonSlug} as Music Assistant.\`);
+    }
+
+    console.log(\`[Admin] Restarting Music Assistant app via Supervisor target: \${addonSlug}\`);
+    await supervisorRequest(\`/addons/\${addonSlug}/\${action}\`, 'POST');
+    return true;
 }
 
 function dockerAction(action = 'restart') {
