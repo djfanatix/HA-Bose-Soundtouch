@@ -1,5 +1,5 @@
 name: "Bose SoundTouch Hybrid"
-version: "0.0.9"
+version: "0.1.0"
 slug: "bose_soundtouch_hybrid"
 description: "Private cloud bridge for Bose SoundTouch speakers and Music Assistant"
 url: "https://github.com/TJGigs/Bose-SoundTouch-Hybrid-2026"
