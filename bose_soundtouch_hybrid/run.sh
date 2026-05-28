@@ -118,6 +118,7 @@ write_env() {
   mass_addon_slug="$(resolved_mass_addon_slug)"
 
   {
+    printf '# .env file format: v3.4\n'
     printf 'APP_IP="%s"\n' "$(dotenv_escape app_ip)"
     printf 'APP_PORT="%s"\n' "$(option app_port)"
     printf 'BOSE_PORT="%s"\n' "$(option bose_port)"
