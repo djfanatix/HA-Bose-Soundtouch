@@ -126,9 +126,9 @@ write_env() {
     printf 'MASS_PORT="%s"\n' "$(option mass_port)"
     printf 'MASS_USERNAME="%s"\n' "$(dotenv_escape mass_username)"
     printf 'MASS_PASSWORD="%s"\n' "$(dotenv_escape mass_password)"
-    printf 'MASS_ADDON_SLUG="%s"\n' "${mass_addon_slug}"
-    printf 'WLA_PRESET_BYPASS="%s"\n' "$(option wla_preset_bypass)"
+    printf 'MASS_CONTAINER_NAME="addon_%s"\n' "${mass_addon_slug}"
     printf 'AUTO_RESUME_PRESET="%s"\n' "$(option auto_resume_preset)"
+    printf 'TRUST_PROXY="%s"\n' "$(option trust_proxy)"
   } > "${APP_CONFIG_DIR}/.env"
 
   if [ -z "${mass_addon_slug}" ] && [ "$(option music_assistant_addon)" = "true" ]; then
