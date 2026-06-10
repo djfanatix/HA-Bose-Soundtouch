@@ -102,11 +102,11 @@ resolved_app_ip() {
   app_ip="$(option app_ip)"
 
   if [ -z "${app_ip}" ] || [ "${app_ip}" = "null" ]; then
-    app_ip="$(detect_home_assistant_url_host | head -n 1)"
+    app_ip="$(detect_lan_ip | head -n 1)"
   fi
 
   if [ -z "${app_ip}" ]; then
-    app_ip="$(detect_lan_ip | head -n 1)"
+    app_ip="$(detect_home_assistant_url_host | head -n 1)"
   fi
 
   printf '%s' "${app_ip}"

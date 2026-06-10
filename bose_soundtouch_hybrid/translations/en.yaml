@@ -1,7 +1,7 @@
 configuration:
   app_ip:
     name: App IP address override
-    description: Optional. Leave blank to auto-detect the local Home Assistant host address that Bose speakers can reach.
+    description: Optional. Leave blank to auto-detect the local Home Assistant host LAN IP address that Bose speakers can reach.
   app_port:
     name: App port
     description: Port used by SoundTouch Hybrid for the web UI and Bose cloud emulation.

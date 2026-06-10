@@ -4,7 +4,7 @@ This Home Assistant app packages the original Bose SoundTouch Hybrid Node app wi
 
 ## Configuration
 
-- Leave `App IP address` blank to auto-detect the Home Assistant host LAN address. Set it manually only when auto-detection picks an address Bose speakers cannot reach.
+- Leave `App IP address` blank to auto-detect the Home Assistant host LAN IP address. Set it manually only when auto-detection picks an address Bose speakers cannot reach.
 
 - Leave `App port` at `3010` when using Home Assistant ingress. If you change it, `ingress_port` must be changed to the same value
 
