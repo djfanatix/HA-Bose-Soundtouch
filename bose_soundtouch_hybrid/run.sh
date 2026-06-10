@@ -377,15 +377,23 @@ NODE
 
 patch_music_assistant_auth() {
   if [ -f /app/server.js ]; then
-    node <<'NODE'
+  node <<'NODE'
 const fs = require("fs");
 const file = "/app/server.js";
 let source = fs.readFileSync(file, "utf8");
 
-source = source.replace(
-  "const requiredEnvVars = ['APP_IP', 'MASS_IP', 'MASS_USERNAME', 'MASS_PASSWORD'];",
-  "const requiredEnvVars = ['APP_IP', 'MASS_IP'];\n    if (process.env.MASS_AUTH_REQUIRED !== 'false') requiredEnvVars.push('MASS_USERNAME', 'MASS_PASSWORD');"
-);
+if (!source.includes("process.env.MASS_AUTH_REQUIRED !== 'false'")) {
+  const original = source;
+  source = source.replace(
+    /const requiredEnvVars = \[[^\]]*'APP_IP'[^\]]*'MASS_IP'[^\]]*'MASS_USERNAME'[^\]]*'MASS_PASSWORD'[^\]]*\];/,
+    "const requiredEnvVars = ['APP_IP', 'MASS_IP'];\n    if (process.env.MASS_AUTH_REQUIRED !== 'false') requiredEnvVars.push('MASS_USERNAME', 'MASS_PASSWORD');"
+  );
+
+  if (source === original) {
+    console.error("[Patch] Unable to update Music Assistant credential validation in server.js");
+    process.exit(1);
+  }
+}
 
 fs.writeFileSync(file, source);
 NODE
