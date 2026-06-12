@@ -8,9 +8,12 @@ configuration:
   bose_port:
     name: Bose speaker port
     description: Local API port used by Bose SoundTouch hardware.
+  mass_ip:
+    name: Music Assistant IP address
+    description: Optional. Leave blank when Music Assistant runs as a Home Assistant app on the same host.
   mass_port:
     name: Music Assistant port
-    description: Port used by the Music Assistant Home Assistant app.
+    description: Port used by Music Assistant.
   mass_token:
     name: Music Assistant long-lived token
     description: Optional. Preferred over username and password when set.

@@ -27,6 +27,7 @@ or
 
 ## 3. Make configuration in the app UI.
    - Leave App IP address blank for auto-detection, or enter the HA host LAN IP manually if needed
+   - Leave Music Assistant IP blank when it runs as a Home Assistant app, or enter its IP/hostname when it runs elsewhere such as Docker
    - Enter the Music Assistant port. For authentication, use a long-lived token if available, otherwise enter the Music Assistant username and password
    - Add your speakers in the Config UI, or enable speaker auto-discovery and keep manual entries for fixed overrides
    - The app automatically uses the timezone configured in Home Assistant for accurate logs

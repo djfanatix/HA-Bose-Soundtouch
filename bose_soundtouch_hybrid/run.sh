@@ -165,8 +165,12 @@ resolved_timezone() {
 }
 
 write_env() {
-  local app_ip timezone
+  local app_ip mass_ip timezone
   app_ip="$(resolved_app_ip)"
+  mass_ip="$(option mass_ip)"
+  if [ -z "${mass_ip}" ] || [ "${mass_ip}" = "null" ]; then
+    mass_ip="127.0.0.1"
+  fi
   timezone="$(resolved_timezone)"
   export TZ="${timezone}"
 
@@ -176,7 +180,7 @@ write_env() {
     printf 'APP_PORT="%s"\n' "$(option app_port)"
     printf 'BOSE_PORT="%s"\n' "$(option bose_port)"
     printf 'LOG_DIR="./config/logs"\n'
-    printf 'MASS_IP="127.0.0.1"\n'
+    printf 'MASS_IP="%s"\n' "${mass_ip}"
     printf 'MASS_PORT="%s"\n' "$(option mass_port)"
     printf 'MASS_TOKEN="%s"\n' "$(dotenv_escape mass_token)"
     printf 'MASS_USERNAME="%s"\n' "$(dotenv_escape mass_username)"

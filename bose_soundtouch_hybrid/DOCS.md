@@ -8,7 +8,7 @@ This Home Assistant app packages the original Bose SoundTouch Hybrid Node app wi
 
 - Leave `App port` at `3010` when using Home Assistant ingress. If you change it, `ingress_port` must be changed to the same value
 
-- Music Assistant is expected to run as a Home Assistant app on the same host. The wrapper uses `127.0.0.1` for Music Assistant.
+- Leave `Music Assistant IP address` blank when Music Assistant runs as a Home Assistant app on the same host. Set it when Music Assistant runs elsewhere, such as Docker.
 - Music Assistant API control uses `Music Assistant port`. A `Music Assistant long-lived token` is preferred, but existing username/password setups remain supported.
 - Add Bose SoundTouch speakers under `Speakers` with a friendly name and static LAN IP address. You can also enable `Auto-discover speakers`; manual entries are kept and discovered speakers are added by IP when missing.
 - The app automatically uses the timezone configured in Home Assistant for SoundTouch Hybrid logs.

@@ -31,6 +31,7 @@ options:
   app_ip: ""
   app_port: 3010
   bose_port: 8090
+  mass_ip: ""
   mass_port: 8095
   mass_token: ""
   mass_username: ""
@@ -43,6 +44,7 @@ schema:
   app_ip: str?
   app_port: int(1,65535)
   bose_port: int(1,65535)
+  mass_ip: str?
   mass_port: int(1,65535)
   mass_token: password?
   mass_username: str?
