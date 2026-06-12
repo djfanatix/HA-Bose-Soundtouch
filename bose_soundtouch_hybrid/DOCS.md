@@ -16,7 +16,7 @@ This Home Assistant app packages the original Bose SoundTouch Hybrid Node app wi
 
 ## Upstream Version
 
-The build currently fetches: v3.5.1
+The build currently fetches: v3.5.5
 
 ## Technical
 
